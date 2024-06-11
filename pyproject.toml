@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "jinjapy"
+version = "0.1.0"
+description = "New hybrid file format combining a Jinja template with Python code in a frontmatter"
+authors = ["Maxime Bouroumeau-Fuseau <maxime.bouroumeau@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/hyperflask/jinjapy"
+packages = [{include = "jinjapy.py"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+jinja2 = "^3.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+ruff = "^0.4.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+include = ["jinjapy.py"]
+line-length = 100
