@@ -69,7 +69,7 @@ class JinjapyLoader(PackageLoader):
             if template and self.prefix and with_template_prefix:
                 template = self.prefix + template
             if module_name:
-                module_name = module_name.strip(os.sep).replace(os.sep, '.')
+                module_name = module_name.strip(os.sep).replace(os.sep, '.').replace("-", "_")
                 if module_with_package:
                     module_name = f"{self.package_name}.{module_name}"
             results.append((module_name, template))
@@ -126,10 +126,10 @@ class JinjapyPackageFinder(MetaPathFinder):
             return spec_from_file_location(fullname, filename, loader=SourceFileLoader(fullname, filename),
                                             submodule_search_locations=None)
         
-        for ext in self.file_exts:
-            filename = os.path.join(self.path, f"{relname}.{ext}")
+        filenames = [(name, ext, os.path.join(self.path, f"{name}.{ext}")) for name in set([relname, relname.replace("_", "-")]) for ext in self.file_exts]
+        for name, ext, filename in filenames:
             if os.path.exists(filename):
-                template = f"{relname}.{ext}"
+                template = f"{name}.{ext}"
                 if self.template_prefix:
                     template = f"{self.template_prefix}{template}"
                 return spec_from_file_location(fullname, filename, loader=JinjapyFileLoader(fullname, filename, template),
