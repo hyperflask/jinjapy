@@ -1,0 +1,96 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Jinjapy",
+    "patterns": [
+        {
+            "include": "#frontmatter"
+        },
+        {
+            "include": "#jinja-statements"
+        },
+        {
+            "include": "#jinja-expressions"
+        },
+        {
+            "include": "#jinja-comments"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#strings"
+        }
+    ],
+    "repository": {
+        "frontmatter": {
+            "name": "meta.embedded.block.frontmatter",
+            "begin": "\\A---\\s*$",
+            "end": "^---\\s*$",
+            "patterns": [
+                {
+                    "include": "source.python"
+                }
+            ]
+        },
+        "jinja-statements": {
+            "name": "meta.tag.template.jinja",
+            "begin": "{%[-+]?",
+            "end": "[-+]?%}",
+            "patterns": [
+                {
+                    "include": "#jinja-keywords"
+                },
+                {
+                    "include": "source.python"
+                }
+            ]
+        },
+        "jinja-expressions": {
+            "name": "meta.tag.template.jinja",
+            "begin": "{{[-+]?",
+            "end": "[-+]?}}",
+            "patterns": [
+                {
+                    "include": "source.python"
+                }
+            ]
+        },
+        "jinja-comments": {
+            "name": "comment.block.jinja",
+            "begin": "{#[-+]?",
+            "end": "[-+]?#}",
+            "patterns": [
+                {
+                    "match": ".",
+                    "name": "comment.block.jinja"
+                }
+            ]
+        },
+        "jinja-keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.jinja",
+                    "match": "\\b(if|else|elif|endif|for|endfor|block|endblock|extends|include|macro|endmacro|set|endset|filter|endfilter|raw|endraw)\\b"
+                }
+            ]
+        },
+        "keywords": {
+            "patterns": [{
+                "name": "keyword.control.jinjapy",
+                "match": "\\b(if|while|for|return)\\b"
+            }]
+        },
+        "strings": {
+            "name": "string.quoted.double.jinjapy",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "constant.character.escape.jinjapy",
+                    "match": "\\\\."
+                }
+            ]
+        }
+    },
+    "scopeName": "source.jinjapy"
+}

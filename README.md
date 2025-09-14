@@ -17,7 +17,7 @@ template_output = jinjapy.execute_module(env, "my_package.module")
 import foo from my_package.module
 ```
 
-*my_package/module.html*:
+*my_package/module.jpy*:
 
 ```
 ---
@@ -37,3 +37,7 @@ Both are optional:
 
 - If the frontmatter is missing, the file only contains a Jinja template
 - If the frontmatter is left unclosed (the file starts with "---" on a single line followed by some python code), the file has no template
+
+## Editor support
+
+A [VS Code extension](https://marketplace.visualstudio.com/items?itemName=hyperflask.jinjapy-language-support) is available to add syntax highlighting for jinjapy files.

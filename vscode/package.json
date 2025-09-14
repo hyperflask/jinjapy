@@ -1,0 +1,25 @@
+{
+  "name": "jinjapy-language-support",
+  "displayName": "Jinjapy Language Support",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "jinjapy",
+      "aliases": ["Jinjapy", "jinjapy"],
+      "extensions": [".jpy"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "jinjapy",
+      "scopeName": "source.jinjapy",
+      "path": "./syntaxes/jinjapy.tmLanguage.json"
+    }]
+  }
+}
