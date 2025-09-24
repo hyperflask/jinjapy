@@ -149,7 +149,7 @@ class JinjapyFileLoader(SourceLoader):
         with open(filename) as f:
             source = f.read()
         source = extract_frontmatter(source)[1] or ""
-        return "\n%s\n\n__jinja_template__ = '%s'" % (source, self.template)
+        return "%s\n__jinja_template__ = '%s'" % (source, self.template)
 
 
 class EmptyFileLoader(SourceLoader):
@@ -164,7 +164,7 @@ class EmptyFileLoader(SourceLoader):
         return ""
 
 
-def extract_frontmatter(source, loads=None):
+def extract_frontmatter(source):
     if source.startswith("---\n"):
         frontmatter_end = source.find("\n---\n", 4)
         if frontmatter_end == -1:
@@ -172,8 +172,7 @@ def extract_frontmatter(source, loads=None):
             source = ""
         else:
             frontmatter = source[4:frontmatter_end]
-            source = source[frontmatter_end + 5:]
-        if loads:
-            frontmatter = loads(frontmatter)
+            source = "{# --- #}\n" * (frontmatter.count("\n") + 3) + source[frontmatter_end + 5:]
+        frontmatter = f"# ---\n{frontmatter}\n# ---\n"
         return source, frontmatter
     return source, None
