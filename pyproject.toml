@@ -1,6 +1,6 @@
 [project]
 name = "jinjapy"
-version = "0.1.1"
+version = "0.1.2"
 description = "New hybrid file format combining a Jinja template with Python code in a frontmatter"
 authors = [
     {"name" = "Maxime Bouroumeau-Fuseau", email = "maxime.bouroumeau@gmail.com"}
