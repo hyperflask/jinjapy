@@ -53,7 +53,11 @@ Both are optional:
 
 A [VS Code extension](https://marketplace.visualstudio.com/items?itemName=hyperflask.jinjapy-language-support) is available to add syntax highlighting for jinjapy files.
 
-## How does it work
+## Syntax highlighting
+
+A [pyment](https://pygments.org/) lexer is provided, named "jinjapy" or "jpy". It will also match .jpy files.
+
+## How does it work
 
 A custom package finder and package loader is added to python search path. The loader extracts the python code from the frontmatter on load.
 

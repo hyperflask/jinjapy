@@ -1,6 +1,6 @@
 [project]
 name = "jinjapy"
-version = "0.1.2"
+version = "0.1.3"
 description = "New hybrid file format combining a Jinja template with Python code in a frontmatter"
 authors = [
     {"name" = "Maxime Bouroumeau-Fuseau", email = "maxime.bouroumeau@gmail.com"}
@@ -14,6 +14,9 @@ dependencies = [
 
 [project.urls]
 Repository = "https://github.com/hyperflask/jinjapy"
+
+[project.entry-points."pygments.lexers"]
+jinjapy = "jinjapy.pygments:JinjapyLexer"
 
 [dependency-groups]
 dev = [
