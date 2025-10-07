@@ -10,15 +10,15 @@ from jinja2 import PackageLoader, ChoiceLoader, TemplateNotFound
 FILE_EXT = "jpy"
 
 
-def register_package(package_name, path=None, template_prefix=None, file_exts=None, env=None):
+def register_package(package_name, path=None, template_prefix=None, file_exts=None, env=None, name_generator=None):
     if template_prefix is None:
         template_prefix = package_name.replace(".", os.sep) + os.sep
     elif template_prefix:
         template_prefix = template_prefix.rstrip(os.sep) + os.sep
 
-    sys.meta_path.insert(0, JinjapyPackageFinder(package_name, path, template_prefix, file_exts))
+    sys.meta_path.insert(0, JinjapyPackageFinder(package_name, path, template_prefix, file_exts, name_generator))
 
-    loader = JinjapyLoader(package_name, template_prefix, file_exts)
+    loader = JinjapyLoader(package_name, template_prefix, file_exts, name_generator)
     if env:
         env.loader = ChoiceLoader([env.loader, loader]) if env.loader else loader
     return loader
@@ -32,10 +32,11 @@ def execute_module(env, module_name, **globals):
 
 
 class JinjapyLoader(PackageLoader):
-    def __init__(self, package_name, prefix=None, file_exts=None):
+    def __init__(self, package_name, prefix=None, file_exts=None, name_generator=None):
         super().__init__(package_name, "")
         self.prefix = prefix
         self.file_exts = file_exts or [FILE_EXT]
+        self.name_generator = name_generator
 
     def get_source(self, environment, template):
         source, frontmatter, filename, uptodate = self._split_source(template)
@@ -58,10 +59,11 @@ class JinjapyLoader(PackageLoader):
     
     def list_files(self, module_with_package=True, with_template_prefix=True, empty_template_for_pymodules=True):
         results = []
-        for template in super().list_templates():
-            if "__pycache__" in template:
+        for filename in super().list_templates():
+            if "__pycache__" in filename:
                 continue
-            module_name, ext = template.rsplit(".", 1)
+            template = filename
+            module_name, ext = filename.rsplit(".", 1)
             if ext == "py" and empty_template_for_pymodules:
                 template = None
             elif ext != "py" and ext not in self.file_exts:
@@ -69,7 +71,8 @@ class JinjapyLoader(PackageLoader):
             if template and self.prefix and with_template_prefix:
                 template = self.prefix + template
             if module_name:
-                module_name = module_name.strip(os.sep).replace(os.sep, '.').replace("-", "_")
+                module_name = self.name_generator.module_from_filename(filename) if self.name_generator \
+                                else module_name.strip(os.sep).replace(os.sep, ".")
                 if module_with_package:
                     module_name = f"{self.package_name}.{module_name}"
             results.append((module_name, template))
@@ -98,13 +101,14 @@ class JinjapyLoader(PackageLoader):
 
 
 class JinjapyPackageFinder(MetaPathFinder):
-    def __init__(self, package_name, path=None, template_prefix=None, file_exts=None):
+    def __init__(self, package_name, path=None, template_prefix=None, file_exts=None, name_generator=None):
         if not path:
             path = os.path.join(os.getcwd(), package_name.replace(".", os.sep))
         self.package_name = package_name
         self.path = path
         self.template_prefix = template_prefix
         self.file_exts = file_exts or [FILE_EXT]
+        self.name_generator = name_generator
 
     def find_spec(self, fullname, path, target=None):
         if not fullname.startswith(self.package_name):
@@ -120,20 +124,25 @@ class JinjapyPackageFinder(MetaPathFinder):
             loader_class = SourceFileLoader if os.path.exists(filename) else EmptyFileLoader
             return spec_from_file_location(fullname, filename, loader=loader_class(fullname, filename),
                 submodule_search_locations=[os.path.join(self.path, relname)])
-        
-        filename = os.path.join(self.path, f"{relname}.py")
-        if os.path.exists(filename):
-            return spec_from_file_location(fullname, filename, loader=SourceFileLoader(fullname, filename),
-                                            submodule_search_locations=None)
-        
-        filenames = [(name, ext, os.path.join(self.path, f"{name}.{ext}")) for name in set([relname, relname.replace("_", "-")]) for ext in self.file_exts]
-        for name, ext, filename in filenames:
+
+        for name, ext, filename in self._get_possible_filenames(relname, self.path, ["py"]):
+            if os.path.exists(filename):
+                return spec_from_file_location(fullname, filename, loader=SourceFileLoader(fullname, filename),
+                                                submodule_search_locations=None)
+
+        for name, ext, filename in self._get_possible_filenames(relname, self.path, self.file_exts):
             if os.path.exists(filename):
                 template = f"{name}.{ext}"
                 if self.template_prefix:
                     template = f"{self.template_prefix}{template}"
                 return spec_from_file_location(fullname, filename, loader=JinjapyFileLoader(fullname, filename, template),
                                                 submodule_search_locations=None)
+            
+    def _get_possible_filenames(self, relname, path, exts):
+        relnames = {relname}
+        if self.name_generator:
+            relnames.update(self.name_generator.filenames_from_module(relname))
+        return [(name, ext, os.path.join(path, f"{name}.{ext}")) for name in relnames for ext in exts]
 
 
 class JinjapyFileLoader(SourceLoader):
@@ -176,3 +185,13 @@ def extract_frontmatter(source):
         frontmatter = f"# ---\n{frontmatter}\n# ---\n"
         return source, frontmatter
     return source, None
+
+
+class NameGenerator:
+    """Example implementation of a custom name generator"""
+
+    def module_from_filename(self, filename):
+        return filename.rsplit(".", 1)[0].strip(os.sep).replace(os.sep, '.')
+    
+    def filenames_from_module(self, module_name):
+        return {}
