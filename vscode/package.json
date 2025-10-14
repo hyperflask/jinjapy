@@ -1,7 +1,11 @@
 {
   "name": "jinjapy-language-support",
   "displayName": "Jinjapy Language Support",
-  "description": "",
+  "description": "Jinjapy Language Support",
+  "publisher": "hyperflask",
+  "repository": {
+    "url": "https://github.com/hyperflask/jinjapy"
+  },
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.96.0"
