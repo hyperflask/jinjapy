@@ -44,11 +44,6 @@ A jinjapy file contains 2 sections:
 - A frontmatter with some Python code (enclosed by lines containg 3 dashes "---")
 - A body containing some Jinja template code
 
-Both are optional:
-
-- If the frontmatter is missing, the file only contains a Jinja template. It won't be available as a python module.
-- If the frontmatter is left unclosed (the file starts with "---" on a single line followed by some python code), the file has no template
-
 ## Editor support
 
 A [VS Code extension](https://marketplace.visualstudio.com/items?itemName=hyperflask.jinjapy-language-support) is available to add syntax highlighting for jinjapy files.
